@@ -3,7 +3,7 @@ require("dotenv").config();
 const cors = require("cors");
 const session = require("express-session");
 const mongoDbSessionStore = require("connect-mongodb-session")(session);
-const multer = require("multer");
+const bodyParser = require("body-parser");
 
 const app = express();
 const PORT = 3000;
@@ -15,7 +15,10 @@ const store = new mongoDbSessionStore({
 
 store.on("error", (e) => console.error(e));
 
-app.use(express.json(), cors(), multer);
+app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET,

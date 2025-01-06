@@ -1,5 +1,9 @@
 exports.uploadImage = async (req, res, next) => {
   const image = req.file;
-  console.log(image);
-  res.json({ message: "Done" });
+  if (!image) {
+    return res
+      .status(422)
+      .json({ message: "Invalid Image Input Upload png, jpeg, jpg Only." });
+  }
+  req.session.imageUrl = image.path;
 };

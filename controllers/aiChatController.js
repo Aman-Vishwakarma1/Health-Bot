@@ -11,17 +11,17 @@ const configuration = {
 const openai = new OpenAI(configuration);
 
 exports.aiChat = async (req, res, next) => {
+  const { prompt } = req.body;
+  console.log(prompt);
   try {
-    const { prompt } = req.body;
     const { modelResult, modelPredictionAccuracy } = req.body;
-
     req.session.chatArr = [];
     const chatHistory = req.session.chatArr;
     const input = [
       {
         role: "system",
         content:
-          "Just provide information regarding Parkinson Disease. You are a knowledgeable medical assistant specializing in Parkinson's disease. Provide accurate, up-to-date, and empathetic responses to user inquiries about Parkinson's disease, including symptoms, treatments, management strategies, and recent research findings. Ensure that all information is sourced from reputable medical literature and guidelines. Keep responses concise (50 words).",
+          "Just provide information regarding Parkinson Disease. You are a knowledgeable medical assistant specializing in Parkinson's disease. Provide accurate, up-to-date, and empathetic responses to user inquiries about Parkinson's disease, including symptoms, treatments, management strategies, and recent research findings. Ensure that all information is sourced from reputable medical literature and guidelines. a ai model tested Keep responses concise (50 words).",
       },
     ];
 
@@ -31,17 +31,14 @@ exports.aiChat = async (req, res, next) => {
         content: msg,
       });
     });
-
     input.push({
       role: "user",
       content: prompt,
     });
-
     const completion = await openai.chat.completions.create({
       model: "pai-001",
       messages: input,
     });
-
     const response = completion.choices[0].message.content;
     const responseValidationKeyword = [
       "PD",
@@ -53,7 +50,6 @@ exports.aiChat = async (req, res, next) => {
     const isValidResponse = responseValidationKeyword.some((word) => {
       return response.includes(word);
     });
-    console.log(req.session);
 
     if (isValidResponse) {
       req.session.chatArr?.push(response);
@@ -64,12 +60,9 @@ exports.aiChat = async (req, res, next) => {
     }
   } catch (err) {
     console.log(err);
-
-    return (
-      res
-        // .status(500)
-        .json({ message: "error occured, Please try again !", err })
-    );
+    return res
+      .status(500)
+      .json({ message: "error occured, Please try again !", err });
   }
 };
 
